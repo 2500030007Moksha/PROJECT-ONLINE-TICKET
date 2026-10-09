@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketHub - Online Ticket Booking</title>
+    <link rel="stylesheet" href="ticket_project_admin.css">
+</head>
+
+<body>
+
+<!-- ================= REGISTRATION PAGE (CUSTOMERS) ================= -->
+<div id="registerPage" class="login-body" style="display:none;">
+    <div class="login-container">
+        <h1>MOVIEBOX</h1>
+        <div class="line"></div>
+        <h2 class="auth-title">CREATE ACCOUNT</h2>
+
+        <form onsubmit="registerUser(event)">
+            <label>EMAIL ADDRESS</label>
+            <div class="input-box">
+                <span>✉️</span>
+                <input type="email" id="registerEmail" placeholder="Enter your email" required>
+            </div>
+
+            <label>PASSWORD</label>
+            <div class="input-box">
+                <span>🔒</span>
+                <input type="password" id="registerPassword" placeholder="Create password" minlength="6" required>
+            </div>
+
+            <label>CONFIRM PASSWORD</label>
+            <div class="input-box">
+                <span>🔒</span>
+                <input type="password" id="confirmPassword" placeholder="Confirm password" minlength="6" required>
+            </div>
+
+            <button type="submit" class="signin-btn">CREATE ACCOUNT</button>
+        </form>
+
+        <button type="button" class="signup-btn" onclick="showLoginPage()">ALREADY HAVE AN ACCOUNT? LOGIN</button>
+        <div class="bottom-line"></div>
+        <p class="footer-text">With <span>♡</span> TicketHub</p>
+    </div>
+</div>
+
+
+<!-- ================= LOGIN PAGE (CUSTOMER + ADMIN) ================= -->
+<div id="loginPage" class="login-body">
+    <div class="login-container">
+        <h1>MOVIEBOX</h1>
+        <div class="line"></div>
+
+        <div class="role-tabs">
+            <button type="button" id="customerTab" class="active" onclick="setLoginRole('customer')">CUSTOMER LOGIN</button>
+            <button type="button" id="adminTab" onclick="setLoginRole('admin')">ADMIN LOGIN</button>
+        </div>
+
+        <h2 class="auth-title" id="loginTitle">CUSTOMER LOGIN</h2>
+
+        <form onsubmit="loginUser(event)">
+            <label>EMAIL ADDRESS</label>
+            <div class="input-box">
+                <span>✉️</span>
+                <input type="email" id="loginEmail" placeholder="Enter your email" required>
+            </div>
+
+            <label>PASSWORD</label>
+            <div class="input-box">
+                <span>🔒</span>
+                <input type="password" id="loginPassword" placeholder="Password" required>
+            </div>
+
+            <div class="login-options">
+                <label class="remember">
+                    <input type="checkbox" id="keepSignedIn"> Keep me Signed in
+                </label>
+                <a href="#" id="forgotLink" onclick="forgotPassword(); return false;">Forgot Password?</a>
+            </div>
+
+            <p class="demo-hint" id="adminHint" style="display:none;">
+                Demo admin login:<br>
+                admin@tickethub.com / admin123<br>
+                (Frontend demo only. Real admin login needs a secure backend.)
+            </p>
+
+            <button type="submit" class="signin-btn">SIGN IN</button>
+        </form>
+
+        <button type="button" class="signup-btn" id="registerBtn" onclick="showRegisterPage()">NEW CUSTOMER? REGISTER</button>
+        <div class="bottom-line"></div>
+        <p class="footer-text">With <span>♡</span> TicketHub</p>
+    </div>
+</div>
+
+
+<!-- ================= CUSTOMER WEBSITE ================= -->
+<div id="mainPage" class="main-page">
+
+    <header>
+        <div class="logo">🎟️ TicketHub</div>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search Movies, Concerts, Sports, Theatre...">
+            <button onclick="searchEvents()">Search</button>
+        </div>
+
+        <div class="menu">
+            <span onclick="goHome()">Home</span>
+            <span onclick="showBookings()">My Bookings</span>
+            <span onclick="logout()">Logout</span>
+        </div>
+    </header>
+
+    <div class="category-bar" id="customerCategoryBar">
+        <button data-cat="All" onclick="filterEvents('All')">🏠 All</button>
+        <button data-cat="Movies" onclick="filterEvents('Movies')">🎬 Movies</button>
+        <button data-cat="Concerts" onclick="filterEvents('Concerts')">🎵 Concerts</button>
+        <button data-cat="Sports" onclick="filterEvents('Sports')">🏏 Sports</button>
+        <button data-cat="Theatre" onclick="filterEvents('Theatre')">🎭 Theatre</button>
+    </div>
+
+    <!-- HOME VIEW -->
+    <div id="homeView">
+
+        <section class="banner">
+            <div>
+                <h1>ONLINE TICKET BOOKING</h1>
+                <p>Book Movies, Concerts, Sports &amp; Theatre Events</p>
+                <button onclick="scrollToEvents()">Explore Events</button>
+            </div>
+        </section>
+
+        <section class="welcome">
+            <h1>Welcome to TicketHub</h1>
+            <p id="welcomeText">Book your favourite events quickly, securely and conveniently.</p>
+        </section>
+
+        <section class="section">
+            <h2>Categories</h2>
+            <div class="category-container">
+                <div class="category-card" onclick="filterEvents('Movies')">
+                    <div>🎬</div><h3>Movies</h3><p>Latest Movies</p>
+                </div>
+                <div class="category-card" onclick="filterEvents('Concerts')">
+                    <div>🎵</div><h3>Concerts</h3><p>Live Music Events</p>
+                </div>
+                <div class="category-card" onclick="filterEvents('Sports')">
+                    <div>🏏</div><h3>Sports</h3><p>Sports Matches</p>
+                </div>
+                <div class="category-card" onclick="filterEvents('Theatre')">
+                    <div>🎭</div><h3>Theatre</h3><p>Drama &amp; Shows</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="events">
+            <h2 id="eventsHeading">Upcoming Events</h2>
+            <div class="event-container" id="eventContainer"></div>
+            <p class="empty-message" id="noEvents" style="display:none;">No events found for this selection.</p>
+        </section>
+
+        <section class="section">
+            <h2>Popular Events</h2>
+            <div class="popular-container" id="popularContainer"></div>
+        </section>
+
+        <section class="services">
+            <div><h3>🎟️ Easy Booking</h3><p>Book tickets easily online.</p></div>
+            <div><h3>🔒 Secure Payment</h3><p>Safe and secure payment.</p></div>
+            <div><h3>📱 Digital Ticket</h3><p>Get your ticket instantly.</p></div>
+            <div><h3>🎧 24 × 7 Support</h3><p>Customer support anytime.</p></div>
+        </section>
+
+        <section class="organizer">
+            <h2>Organizers</h2>
+            <p>Organizers manage event details, monitor ticket sales and offer promotions through the TicketHub admin dashboard.</p>
+        </section>
+    </div>
+
+    <!-- MY BOOKINGS VIEW -->
+    <div id="bookingsView" style="display:none;">
+        <section class="section">
+            <h2>My Bookings</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Booking ID</th><th>Event</th><th>Date &amp; Time</th><th>Seats</th>
+                            <th>Amount</th><th>Status</th><th>Ticket</th>
+                        </tr>
+                    </thead>
+                    <tbody id="myBookingsBody"></tbody>
+                </table>
+            </div>
+            <p class="empty-message" id="noMyBookings" style="display:none;">You have no bookings yet.</p>
+        </section>
+    </div>
+
+    <footer>
+        <h2>TicketHub</h2>
+        <p class="footer-links">
+            <span onclick="goHome()">Home</span> |
+            <span onclick="scrollToEvents()">Events</span> |
+            <span onclick="filterEvents('All')">Categories</span> |
+            <span onclick="showBookings()">My Bookings</span> |
+            <span onclick="showInfo('Contact us at support@tickethub.example (demo).')">Contact Us</span> |
+            <span onclick="showInfo('Help: choose an event, select seats, pay, and get your digital ticket.')">Help</span>
+        </p>
+        <p>Copyright © 2026 TicketHub</p>
+    </footer>
+</div>
+
+
+<!-- ================= ADMIN DASHBOARD ================= -->
+<div id="adminPage" class="main-page">
+
+    <header>
+        <div class="logo">🎟️ TicketHub Admin</div>
+
+        <div class="menu">
+            <span onclick="scrollToId('adminDashboard')">Dashboard</span>
+            <span onclick="scrollToId('adminEvents')">Events</span>
+            <span onclick="scrollToId('adminBookings')">Bookings</span>
+            <span onclick="scrollToId('adminSales')">Sales</span>
+            <span onclick="scrollToId('adminCollections')">Collections</span>
+            <span onclick="logout()">Logout</span>
+        </div>
+    </header>
+
+    <div class="category-bar" id="adminCategoryBar">
+        <button data-cat="All" onclick="adminFilter('All')">🏠 All</button>
+        <button data-cat="Movies" onclick="adminFilter('Movies')">🎬 Movies</button>
+        <button data-cat="Concerts" onclick="adminFilter('Concerts')">🎵 Concerts</button>
+        <button data-cat="Sports" onclick="adminFilter('Sports')">🏏 Sports</button>
+        <button data-cat="Theatre" onclick="adminFilter('Theatre')">🎭 Theatre</button>
+    </div>
+
+    <section class="welcome" id="adminDashboard">
+        <h1>Admin Dashboard</h1>
+        <p>Manage events, monitor bookings and view ticket sales.</p>
+    </section>
+
+    <section class="section">
+        <div class="stat-grid">
+            <div class="stat-card"><h3 id="statEvents">0</h3><p>Total Events</p></div>
+            <div class="stat-card"><h3 id="statBookings">0</h3><p>Total Bookings</p></div>
+            <div class="stat-card"><h3 id="statTickets">0</h3><p>Tickets Sold</p></div>
+            <div class="stat-card"><h3 id="statAmount">₹0</h3><p>Total Collections</p><small>Booking amount, payment not verified</small></div>
+        </div>
+        <div class="notice">
+            Demo notice: data is saved in this browser only (localStorage). Booking amounts are not real money
+            collected. Real collections need a payment gateway and a backend database.
+        </div>
+    </section>
+
+    <section class="section" id="adminEvents">
+        <div class="section-head">
+            <h2>Manage Events</h2>
+            <div>
+                <button class="small-btn" onclick="openEventForm()">+ Add New Event</button>
+                <button class="small-btn danger" onclick="resetDemoData()">Reset Demo Data</button>
+            </div>
+        </div>
+        <p class="filter-note" id="adminFilterNote"></p>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Image</th><th>Event</th><th>Category</th><th>Date &amp; Time</th><th>Venue</th>
+                        <th>Price</th><th>Seats (Available / Total)</th><th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="adminEventsBody"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="section" id="adminBookings">
+        <div class="section-head"><h2>Customer Bookings</h2></div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Booking ID</th><th>Customer</th><th>Event</th><th>Seats</th>
+                        <th>Qty</th><th>Amount</th><th>Status</th><th>Booked On</th>
+                    </tr>
+                </thead>
+                <tbody id="adminBookingsBody"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="section" id="adminSales">
+        <div class="section-head"><h2>Ticket Sales Details</h2></div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Event</th><th>Category</th><th>Total Seats</th><th>Tickets Sold</th>
+                        <th>Seats Left</th><th>Booking Amount</th>
+                    </tr>
+                </thead>
+                <tbody id="adminSalesBody"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="section" id="adminCollections">
+        <div class="section-head"><h2>Collection Summary</h2></div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th>Category</th><th>Bookings</th><th>Tickets Sold</th><th>Booking Amount</th></tr>
+                </thead>
+                <tbody id="adminCollectionBody"></tbody>
+            </table>
+        </div>
+        <div class="notice">
+            Booking amount = value of tickets booked in this demo. Verified collection (confirmed by a real
+            payment gateway): <strong>₹0</strong>. Bookings for deleted events stay in the records.
+        </div>
+    </section>
+
+    <footer>
+        <h2>TicketHub Admin</h2>
+        <p>Copyright © 2026 TicketHub</p>
+    </footer>
+</div>
+
+
+<!-- ================= ADD / EDIT EVENT FORM ================= -->
+<div class="modal" id="eventFormModal">
+    <div class="modal-box">
+        <span class="close" onclick="closeEventForm()">×</span>
+        <h2 id="formTitle">Add New Event</h2>
+
+        <form onsubmit="saveEvent(event)" novalidate>
+            <label for="eventName">Event Name</label>
+            <input type="text" id="eventName" placeholder="Event name">
+
+            <label for="eventCategory">Event Category</label>
+            <select id="eventCategory">
+                <option value="">Select category</option>
+                <option>Movies</option>
+                <option>Concerts</option>
+                <option>Sports</option>
+                <option>Theatre</option>
+            </select>
+
+            <label for="eventDate">Event Date</label>
+            <input type="date" id="eventDate">
+
+            <label for="eventTime">Event Time</label>
+            <input type="time" id="eventTime">
+
+            <label for="eventVenue">Venue</label>
+            <input type="text" id="eventVenue" placeholder="Venue, City">
+
+            <label for="eventPrice">Ticket Price (₹)</label>
+            <input type="number" id="eventPrice" min="1" placeholder="250">
+
+            <label for="eventSeats">Available Seats (total seats for this event)</label>
+            <input type="number" id="eventSeats" min="1" max="2000" placeholder="100">
+
+            <label for="eventImage">Event Image URL</label>
+            <input type="text" id="eventImage" placeholder="https://images.unsplash.com/...">
+
+            <label for="eventDescription">Event Description</label>
+            <textarea id="eventDescription" rows="3" placeholder="Short description"></textarea>
+
+            <label for="eventDiscount">Promotion Discount % (optional, 0 to 90)</label>
+            <input type="number" id="eventDiscount" min="0" max="90" placeholder="0">
+
+            <p class="form-error" id="formError"></p>
+
+            <button type="submit" class="payment-btn">Save Event</button>
+        </form>
+    </div>
+</div>
+
+
+<!-- ================= DETAILS POPUP ================= -->
+<div class="modal" id="detailsModal">
+    <div class="modal-box">
+        <span class="close" onclick="closeDetails()">×</span>
+        <h2>Event Details</h2>
+        <h3 id="detailName"></h3>
+        <p>Category: <span id="detailCategory"></span></p>
+        <p>Date: <span id="detailDate"></span></p>
+        <p>Time: <span id="detailTime"></span></p>
+        <p>Venue: <span id="detailVenue"></span></p>
+        <p>Ticket Price: <span id="detailPrice"></span></p>
+        <p>Available Seats: <span id="detailSeats"></span></p>
+        <p id="detailDescription"></p>
+        <button class="book-btn" id="detailBookBtn">Book Now</button>
+        <button class="details-btn" onclick="closeDetails()">Close</button>
+    </div>
+</div>
+
+
+<!-- ================= BOOKING POPUP (SEATS) ================= -->
+<div class="modal" id="bookingModal">
+    <div class="modal-box">
+        <span class="close" onclick="closeBooking()">×</span>
+        <h2>🎟️ Book Your Ticket</h2>
+        <h3 id="bookingEvent"></h3>
+
+        <div class="price-lines">
+            <p><span>Original Price</span><span id="bookingPrice"></span></p>
+            <p id="discountRow"><span>Discounted Price</span><span id="bookingFinalPrice"></span></p>
+        </div>
+
+        <h3>Select Seats (max 10)</h3>
+        <div class="screen">SCREEN</div>
+        <div class="seat-container seat-map" id="seatMap"></div>
+        <p class="legend">Green = available, Blue = selected, Grey = booked</p>
+
+        <div class="price-lines">
+            <p><span>Selected Seats</span><span id="selectedSeats">None</span></p>
+            <p><span>Number of Tickets</span><span id="seatCount">0</span></p>
+            <p class="total-line"><span>Total Payable</span><span>₹<span id="totalAmount">0</span></span></p>
+        </div>
+
+        <button class="payment-btn" onclick="showPayment()">Proceed to Checkout</button>
+    </div>
+</div>
+
+
+<!-- ================= CHECKOUT + PAYMENT POPUP ================= -->
+<div class="modal" id="paymentModal">
+    <div class="modal-box">
+        <span class="close" onclick="closePayment()">×</span>
+        <h2>💳 Checkout</h2>
+
+        <div id="checkoutSummary" class="price-lines"></div>
+
+        <p>Select Payment Method</p>
+        <select id="paymentMethod">
+            <option>UPI</option>
+            <option>Credit Card</option>
+            <option>Debit Card</option>
+            <option>Net Banking</option>
+        </select>
+
+        <div class="notice">
+            Demo payment: no money is taken and no card or UPI details are collected.
+            A real payment gateway is needed for real payments.
+        </div>
+
+        <button class="payment-btn" onclick="makePayment()">Confirm Booking (Demo Payment)</button>
+    </div>
+</div>
+
+
+<!-- ================= DIGITAL TICKET ================= -->
+<div class="modal" id="ticketModal">
+    <div class="digital-ticket" id="ticketPrintArea">
+        <h2>🎟️ DIGITAL TICKET</h2>
+        <div class="ticket-line"></div>
+        <h3 id="ticketEvent"></h3>
+        <p id="ticketWhen"></p>
+        <p id="ticketVenue"></p>
+        <p>Booking ID: <strong id="bookingId"></strong></p>
+        <p>Seats: <strong id="ticketSeats"></strong></p>
+        <p>Amount: ₹<strong id="ticketAmount"></strong></p>
+        <p class="success">✓ Booking Confirmed</p>
+        <p class="small-text">Demo ticket. Payment not verified by a real gateway.</p>
+        <button class="no-print" onclick="printTicket()">Print Ticket</button>
+        <button class="no-print" onclick="closeTicket()">Close</button>
+    </div>
+</div>
+
+<script src="ticket_project_admin.js"></script>
+</body>
+</html>
